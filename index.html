@@ -784,7 +784,7 @@
       const renderView = () => {
         switch(state.currentView) {
           case "onboarding":
-            return <Onboarding {...state} />;
+            return <Onboarding {...state} step={state.onboardingStep} />;
           case "stats":
             return <StatsForm {...state} onSubmit={() => state.setCurrentView("auth")} />;
           case "auth":
