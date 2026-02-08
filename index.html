@@ -40,6 +40,15 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
+    // Define questions OUTSIDE the component so they're stable
+    const QUESTIONS = [
+      { key: 'goal', text: "What's your health goal?", placeholder: "e.g., lose weight, build muscle..." },
+      { key: 'currentActivity', text: "Are you currently working out?", placeholder: "e.g., gym 3x/week..." },
+      { key: 'weekdayRoutine', text: "Walk me through your typical weekday", placeholder: "e.g., wake at 7am, work 9-6..." },
+      { key: 'weekendRoutine', text: "What does a typical weekend look like?", placeholder: "e.g., sleep in, brunch..." },
+      { key: 'barriers', text: "What's been stopping you?", placeholder: "e.g., no time, no motivation..." },
+    ];
+
     // ============ CONFIGURATION ============
     const CONFIG = {
       GOOGLE_CLIENT_ID: '',
@@ -273,18 +282,10 @@
         setIsListening(!isListening);
       };
 
-      const questions = [
-        { key: 'goal', text: "What's your health goal?", placeholder: "e.g., lose weight, build muscle..." },
-        { key: 'currentActivity', text: "Are you currently working out?", placeholder: "e.g., gym 3x/week..." },
-        { key: 'weekdayRoutine', text: "Walk me through your typical weekday", placeholder: "e.g., wake at 7am, work 9-6..." },
-        { key: 'weekendRoutine', text: "What does a typical weekend look like?", placeholder: "e.g., sleep in, brunch..." },
-        { key: 'barriers', text: "What's been stopping you?", placeholder: "e.g., no time, no motivation..." },
-      ];
-
       const handleOnboardingNext = () => {
-        setOnboardingAnswers(prev => ({ ...prev, [questions[onboardingStep].key]: transcript }));
+        setOnboardingAnswers(prev => ({ ...prev, [QUESTIONS[onboardingStep].key]: transcript }));
         setTranscript("");
-        if (onboardingStep < questions.length - 1) {
+        if (onboardingStep < QUESTIONS.length - 1) {
           setOnboardingStep(onboardingStep + 1);
         } else {
           setCurrentView("stats");
@@ -359,7 +360,7 @@
         transcript, setTranscript, useMetric, setUseMetric, userData, setUserData,
         recommendations, weeklyPlan, completedActivities, toggleActivity,
         chatHistory, sendChat, handleOnboardingNext, handleOnboardingBack,
-        generateRecommendations, isGenerating, questions,
+        generateRecommendations, isGenerating,
         isCalendarConnected: calendar.isConnected,
         connectCalendar: calendar.connect,
         syncWorkouts,
@@ -411,19 +412,19 @@
     );
 
     // ============ COMPONENTS ============
-    const Onboarding = ({ step, transcript, setTranscript, isListening, toggleListening, onNext, onBack, questions }) => (
+    const Onboarding = ({ step, transcript, setTranscript, isListening, toggleListening, onNext, onBack }) => (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 px-6 py-12">
         <div className="max-w-2xl mx-auto">
           <div className="flex gap-2 mb-8">
-            {questions.map((_, idx) => (
+            {QUESTIONS.map((_, idx) => (
               <div key={idx} className={`h-1 flex-1 rounded-full transition-all ${idx <= step ? 'bg-teal-600' : 'bg-teal-200'}`} />
             ))}
           </div>
 
-          <h1 className="text-2xl font-light text-slate-800 mb-6 leading-relaxed">{questions[step].text}</h1>
+          <h1 className="text-2xl font-light text-slate-800 mb-6 leading-relaxed">{QUESTIONS[step].text}</h1>
           
           <div className="text-lg text-slate-600 leading-relaxed mb-8 min-h-[60px]">
-            {transcript ? <span className="animate-fadeIn">{transcript}</span> : <span className="text-slate-400 italic">{questions[step].placeholder}</span>}
+            {transcript ? <span className="animate-fadeIn">{transcript}</span> : <span className="text-slate-400 italic">{QUESTIONS[step].placeholder}</span>}
           </div>
 
           <div className="space-y-4">
@@ -454,7 +455,7 @@
               <textarea
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                placeholder={questions[step].placeholder}
+                placeholder={QUESTIONS[step].placeholder}
                 className="w-full min-h-[100px] p-4 border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
@@ -783,7 +784,7 @@
       const renderView = () => {
         switch(state.currentView) {
           case "onboarding":
-            return <Onboarding {...state} questions={state.questions} />;
+            return <Onboarding {...state} />;
           case "stats":
             return <StatsForm {...state} onSubmit={() => state.setCurrentView("auth")} />;
           case "auth":
